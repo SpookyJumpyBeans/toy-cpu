@@ -5,8 +5,6 @@ multiplexing, a hardwired control unit, and a timing sequencer, all written in s
 synthesized for a Cyclone V FPGA. No soft-core IP, no inferred processor blocks — every register,
 mux, and decoder is an entity in [`rtl/`](rtl).
 
-Coursework project, University of Virginia.
-
 ![Toy CPU datapath and controller](docs/datapath.png)
 
 *The datapath and hardwired controller. Every block here is an entity in [`rtl/`](rtl) —
