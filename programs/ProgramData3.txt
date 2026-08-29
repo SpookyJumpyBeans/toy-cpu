@@ -1,0 +1,11 @@
+#address / data ;
+#------------
+#icode 6 b = 3
+00/64; #0110 0100 Set register 1 to Mem[PC+1]
+01/48; 
+02/68; #0110 1000 Set register 2 to Mem[PC+1]
+03/67; 
+04/46; #0100 0110 Set Mem[Register 2] to 0x48 (Register 1)
+05/6F; #0110 1111  Set Register 3 to Mem[Mem[PC+1]]
+06/67; #0110 0111 Mem[Mem[PC+1]]
+07/F0;

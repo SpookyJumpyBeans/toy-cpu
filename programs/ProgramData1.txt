@@ -1,0 +1,9 @@
+#address / data ;
+#------------
+# icode 2
+00/64; #0110 0100  Set register 1 to Mem[PC+1]
+01/55; #0101 0101 0x55
+02/68; #0110 1000 Set register 2 to Mem[PC+1]
+03/FF; #1111 1111 0xFF
+04/29; #0010 1001 Take the And of Register 1 and 2 and store in register 2
+05/F0;

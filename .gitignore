@@ -1,0 +1,32 @@
+# Quartus build output
+db/
+incremental_db/
+output_files/
+greybox_tmp/
+*.qws
+*.sof
+*.pof
+*.jdi
+*.sld
+*.done
+*.pin
+*.qdf
+*.rpt
+!reports/*.summary
+
+# ModelSim
+rtl_work/
+work/
+transcript
+msim_transcript
+vsim.wlf
+*.wlf
+*.vho
+*.sft
+*.xrf
+*.bak
+*.bak[0-9]*
+
+# OS
+.DS_Store
+Thumbs.db
