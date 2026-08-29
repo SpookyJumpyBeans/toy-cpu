@@ -1,3 +1,6 @@
+vlib work
+vmap work work
+
 vcom -2008 -work work {../rtl/d_ff.vhd}
 vcom -2008 -work work {../rtl/counter_synchreset.vhd}
 vcom -2008 -work work {../rtl/sequencer.vhd}

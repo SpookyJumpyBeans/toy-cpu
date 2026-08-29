@@ -102,14 +102,19 @@ Four programs run against a behavioral RAM model ([`tb/ram.vhd`](tb/ram.vhd)) th
 | [`ProgramData2`](programs/ProgramData2.txt) | Store to a register-held address |
 | [`ProgramData3`](programs/ProgramData3.txt) | Indirect load — the 4-cycle path |
 
-Run one in ModelSim from the `sim/` directory:
+Run one from the `sim/` directory — the scripts use relative paths, so the working directory
+matters:
 
 ```bash
 vsim -do testbench3.do
 ```
 
-Each script compiles the RTL in dependency order, elaborates the testbench with the matching
-program file, and puts PC, IR, all four registers, and the full memory array on the wave view.
+Already inside the ModelSim GUI, `cd` to `sim/` and run `do testbench3.do` in the transcript
+instead. For a non-interactive run, `vsim -c -do "do testbench3.do; quit -f"`.
+
+Each script creates the `work` library, compiles the RTL in dependency order, elaborates the
+testbench with the matching program file, and puts PC, IR, all four registers, and the full
+memory array on the wave view.
 
 ## Synthesis results
 
