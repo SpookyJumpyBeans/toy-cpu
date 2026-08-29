@@ -7,44 +7,11 @@ mux, and decoder is an entity in [`rtl/`](rtl).
 
 Coursework project, University of Virginia.
 
-```mermaid
-flowchart LR
-  subgraph CTRL["controller — hardwired"]
-    SEQ["sequencer<br/>2-bit counter → T0..T3"]
-    DEC["opcode_decoder<br/>3→8 icode, 2→4 b_fld"]
-    CSL["control_signals_logic<br/>sum-of-products"]
-    SEQ --> CSL
-    DEC --> CSL
-  end
+![Toy CPU datapath and controller](docs/datapath.png)
 
-  subgraph DP["datapath — 8-bit"]
-    PC["PC"] --> INC["+1"]
-    INC --> MJ{"MUX_j"}
-    MJ --> PC
-    PC --> PCP["PC_prev"]
-    IR["IR"] --> RF["register file<br/>4 x 8-bit"]
-    RF -->|"rd1 = A"| ALU["ALU"]
-    RF -->|"rd2"| M4{"MUX4"}
-    M4 -->|"B"| ALU
-    ALU --> M1{"MUX1"}
-    PC --> M1
-    M1 --> M2{"MUX2"}
-    MA["MA"] --> M2
-    M2 --> ADDR["addr_bus"]
-    ALU --> M3{"MUX3"}
-    M3 --> RF
-    ALU -->|"j"| MJ
-  end
-
-  MEM[("memory<br/>256 x 8")] -->|data_in| IR
-  MEM -->|data_in| M3
-  MEM -->|data_in| M4
-  MEM -->|data_in| MA
-  RF -->|"data_out"| MEM
-  ADDR --> MEM
-  IR -->|"icode, b_fld"| CTRL
-  CSL -->|"S1..S4, IRe, MAe, RFe, PCe, memoe, memwe"| DP
-```
+*The datapath and hardwired controller. Every block here is an entity in [`rtl/`](rtl) —
+`oldPC` is `register_n` instance `b2v_PCold`, `MemAddr` is `b2v_MA`, and `S1`–`S4` are the mux
+selects driven by [`control_signals_logic.vhd`](rtl/control_signals_logic.vhd).*
 
 ---
 
@@ -64,35 +31,41 @@ flowchart LR
 ```
  7     6  5  4     3  2     1  0
 +---+ +----------+ +-----+ +-----+
-| r | |  icode   | | rd  | |b_fld|
+| r | |  icode   | |  a  | |  b  |
 +---+ +----------+ +-----+ +-----+
 ```
 
-`rd` selects the destination, which is also the first ALU operand — so the machine is
-two-address (`rd ← rd op src`) rather than three-address. `b_fld` doubles as the second
+`a` selects the destination register, which is also the first ALU operand — so the machine is
+two-address (`R[a] ← R[a] op R[b]`) rather than three-address. `b` doubles as the second
 register select and as a sub-opcode for the unary and immediate groups, which is how eight
-opcodes cover more than eight operations.
+opcodes cover fourteen operations. In the RTL the `b` field is carried on the signal named
+`b_fld`.
 
 ## Instruction set
 
-Derived from [`rtl/alu.vhd`](rtl/alu.vhd) and [`rtl/control_signals_logic.vhd`](rtl/control_signals_logic.vhd):
+![Toy instruction set](docs/instruction-set.png)
 
-| icode | b_fld | Operation | Effect |
+*Instruction set as specified by the course; the implementation below was built to match it.*
+
+The same table, in text — every row verified against [`rtl/alu.vhd`](rtl/alu.vhd) and
+[`rtl/control_signals_logic.vhd`](rtl/control_signals_logic.vhd):
+
+| icode | b | Operation | RTL |
 |---|---|---|---|
-| `000` | reg | MOV | `Rd ← Rs` |
-| `001` | reg | ADD | `Rd ← Rd + Rs` |
-| `010` | reg | AND | `Rd ← Rd AND Rs` |
-| `011` | reg | LOAD | `Rd ← Mem[Rs]` |
-| `100` | reg | STORE | `Mem[Rs] ← Rd` |
-| `101` | `00` | NOT | `Rd ← NOT Rd` |
-| `101` | `01` | NEG | `Rd ← −Rd` |
-| `101` | `10` | SEQZ | `Rd ← 1 if Rd = 0 else 0` |
-| `101` | `11` | RDPC | `Rd ← PC` |
-| `110` | `00` | LDI | `Rd ← Mem[PC+1]` (immediate) |
-| `110` | `01` | ADDI | `Rd ← Rd + Mem[PC+1]` |
-| `110` | `10` | ANDI | `Rd ← Rd AND Mem[PC+1]` |
-| `110` | `11` | LDIND | `Rd ← Mem[Mem[PC+1]]` (indirect) |
-| `111` | reg | BLEZ | `PC ← Rs` if `Rd ≤ 0`, signed |
+| `000` | reg | Copy | `R[a] ← R[b]` |
+| `001` | reg | Add | `R[a] ← R[a] + R[b]` |
+| `010` | reg | Bitwise AND | `R[a] ← R[a] & R[b]` |
+| `011` | reg | Load | `R[a] ← Mem[R[b]]` |
+| `100` | reg | Store | `Mem[R[b]] ← R[a]` |
+| `101` | `00` | Bitwise NOT | `R[a] ← ~R[a]` |
+| `101` | `01` | Negation | `R[a] ← −R[a]` |
+| `101` | `10` | Logical NOT | `R[a] ← !R[a]` |
+| `101` | `11` | Read PC | `R[a] ← PC` |
+| `110` | `00` | Load immediate | `R[a] ← Mem[PC+1]` |
+| `110` | `01` | Add immediate | `R[a] ← R[a] + Mem[PC+1]` |
+| `110` | `10` | AND immediate | `R[a] ← R[a] & Mem[PC+1]` |
+| `110` | `11` | Load indirect | `R[a] ← Mem[Mem[PC+1]]` |
+| `111` | reg | Branch if ≤ 0 | `(R[a] ≤ 0) → (PC ← R[b])` |
 
 ## How the control unit works
 
@@ -178,6 +151,7 @@ programs/    test programs as address/data hex text
 sim/         ModelSim .do scripts, one per program
 quartus/     project (.qpf) and settings (.qsf) files
 reports/     synthesis, fitter, and timing summaries
+docs/        instruction set spec and datapath schematic
 ```
 
 ## License
