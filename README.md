@@ -43,8 +43,6 @@ opcodes cover fourteen operations. In the RTL the `b` field is carried on the si
 
 ![Toy instruction set](docs/instruction-set.png)
 
-*Instruction set as specified by the course; the implementation below was built to match it.*
-
 The same table, in text — every row verified against [`rtl/alu.vhd`](rtl/alu.vhd) and
 [`rtl/control_signals_logic.vhd`](rtl/control_signals_logic.vhd):
 
