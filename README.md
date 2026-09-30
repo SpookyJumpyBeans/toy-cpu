@@ -5,11 +5,45 @@ multiplexing, a hardwired control unit, and a timing sequencer, all written in s
 synthesized for a Cyclone V FPGA. No soft-core IP, no inferred processor blocks — every register,
 mux, and decoder is an entity in [`rtl/`](rtl).
 
+**[Try it in the browser →](https://spookyjumpybeans.github.io/toy-cpu/)** Step through this CPU
+one clock cycle at a time.
+
+[![The visualizer stepping through a loop: each instruction is fetched, the PC advances, it
+executes, and a taken branch loads the loop address back into the PC](docs/visualizer.gif)](https://spookyjumpybeans.github.io/toy-cpu/)
+
 ![Toy CPU datapath and controller](docs/datapath.png)
 
 *The datapath and hardwired controller. Every block here is an entity in [`rtl/`](rtl) —
 `oldPC` is `register_n` instance `b2v_PCold`, `MemAddr` is `b2v_MA`, and `S1`–`S4` are the mux
 selects driven by [`control_signals_logic.vhd`](rtl/control_signals_logic.vhd).*
+
+## Visualizer
+
+[`web/`](web) — [live here](https://spookyjumpybeans.github.io/toy-cpu/) — runs a cycle-accurate
+model of this CPU in the browser and animates it one clock cycle at a time. The datapath above lights up the buses carrying a value on each cycle, the
+controller shows the time state and every control signal, and each step is narrated in plain
+English — "S2 puts MA = 0x67 on the address bus; memory returns 0x48 and S3 steers it into the
+register file."
+
+The model is a port, not an approximation. Control signals come equation-for-equation from
+[`control_signals_logic.vhd`](rtl/control_signals_logic.vhd), the ALU from
+[`alu.vhd`](rtl/alu.vhd), and the counter's clear from [`sequencer.vhd`](rtl/sequencer.vhd). It is
+checked against the same four programs the testbenches run: each one assembles byte-for-byte to
+its `ProgramData` file and produces the result that program was written to show. On top of
+those, a branchless shift-and-add multiply is verified against all 256 pairs of 4-bit operands.
+
+```bash
+cd web
+python -m http.server 8765   # then open http://localhost:8765
+npm test                     # node --test; no dependencies
+```
+
+Every push to `main` that touches `web/` reruns those tests in CI and redeploys the page only if
+they pass.
+
+The page includes a two-pass assembler, so you can write and step through your own programs.
+Branches jump to an address held in a register, so a loop loads its own address first —
+`ldi r2, loop`, then `ble r1, r2`.
 
 ---
 
@@ -153,6 +187,7 @@ sim/         ModelSim .do scripts, one per program
 quartus/     project (.qpf) and settings (.qsf) files
 reports/     synthesis, fitter, and timing summaries
 docs/        instruction set spec and datapath schematic
+web/         browser visualizer: cycle-accurate model, assembler, tests
 ```
 
 ## License
