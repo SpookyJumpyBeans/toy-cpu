@@ -1,0 +1,10 @@
+{
+  "name": "toy-cpu-visualizer",
+  "private": true,
+  "type": "module",
+  "description": "Cycle-accurate, animated model of the toy CPU in rtl/.",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "serve": "python -m http.server 8765"
+  }
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toy CPU — watch it think</title>
+  <meta name="description" content="A cycle-accurate, animated model of an 8-bit multi-cycle CPU built in structural VHDL. Step through fetch, decode and execute one clock cycle at a time.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1>Toy CPU</h1>
+      <p>An 8-bit multi-cycle processor from <a href="https://github.com/SpookyJumpyBeans/toy-cpu">structural VHDL</a>, one clock cycle at a time.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Controls">
+      <label class="program-pick">
+        <span class="visually-hidden">Program</span>
+        <select id="program"></select>
+      </label>
+      <div class="buttons">
+        <button id="reset" title="Reset (R)">Reset</button>
+        <button id="back" title="Step back one cycle (&larr;)">&larr; Back</button>
+        <button id="step" title="Step one clock cycle (&rarr;)">Step cycle &rarr;</button>
+        <button id="stepInstr" title="Step one instruction (Shift+&rarr;)">Step instruction &rArr;</button>
+        <button id="run" class="primary" aria-pressed="false" title="Run / pause (Space)">Run</button>
+      </div>
+      <label class="speed">
+        <span>Speed</span>
+        <input id="speed" type="range" min="1" max="30" value="4">
+        <output id="speedValue"></output>
+      </label>
+    </section>
+
+    <p class="blurb" id="blurb"></p>
+
+    <section class="stage">
+      <div class="datapath-wrap" id="datapath"></div>
+      <aside class="controller" aria-label="Controller">
+        <h2>Controller</h2>
+        <div class="tstates" aria-label="Time state">
+          <span class="tstate" data-t="0">T0</span>
+          <span class="tstate" data-t="1">T1</span>
+          <span class="tstate" data-t="2">T2</span>
+          <span class="tstate" data-t="3">T3</span>
+        </div>
+        <p class="phase" id="phase"></p>
+        <div class="signals" id="signals"></div>
+        <p class="stats"><span id="stats"></span> <span class="halted" id="halted" hidden>halted</span></p>
+      </aside>
+    </section>
+
+    <p class="narration" id="narration" aria-live="polite"></p>
+
+    <section class="panels">
+      <div class="panel">
+        <h2>Program</h2>
+        <ol class="listing" id="listing"></ol>
+      </div>
+      <div class="panel">
+        <h2>Memory</h2>
+        <div class="memory-scroll"><table class="memory" id="memory"></table></div>
+        <p class="legend">
+          <span class="key prog"></span>program
+          <span class="key pc"></span>PC
+          <span class="key read"></span>read
+          <span class="key write"></span>write
+          <span class="key changed"></span>changed
+        </p>
+      </div>
+      <div class="panel editor">
+        <h2>Assembly</h2>
+        <textarea id="source" spellcheck="false" aria-label="Assembly source"></textarea>
+        <button id="assemble">Assemble &amp; load</button>
+        <div class="errors" id="asmErrors" hidden></div>
+      </div>
+    </section>
+
+    <footer>
+      <p><kbd>Space</kbd> run/pause · <kbd>&rarr;</kbd> cycle · <kbd>Shift</kbd>+<kbd>&rarr;</kbd> instruction · <kbd>&larr;</kbd> back · <kbd>R</kbd> reset</p>
+      <p>Every control signal is ported from <code>rtl/control_signals_logic.vhd</code>; the model is checked against the four testbench programs.</p>
+    </footer>
+  </main>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
