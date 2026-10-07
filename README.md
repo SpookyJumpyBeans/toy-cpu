@@ -1,5 +1,9 @@
 # Toy CPU — an 8-bit multi-cycle processor in VHDL
 
+![VHDL](https://img.shields.io/badge/VHDL-543978)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![FPGA](https://img.shields.io/badge/FPGA-Cyclone%20V-0071C5?logo=intel&logoColor=white)
+
 A small general-purpose CPU built from the gate level up: register file, ALU, datapath
 multiplexing, a hardwired control unit, and a timing sequencer, all written in structural VHDL and
 synthesized for a Cyclone V FPGA. No soft-core IP, no inferred processor blocks — every register,
