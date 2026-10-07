@@ -1,4 +1,4 @@
-# Toy CPU — an 8-bit multi-cycle processor in VHDL
+# Toy CPU: an 8-bit multi-cycle processor in VHDL
 
 ![VHDL](https://img.shields.io/badge/VHDL-543978)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
@@ -6,7 +6,7 @@
 
 A small general-purpose CPU built from the gate level up: register file, ALU, datapath
 multiplexing, a hardwired control unit, and a timing sequencer, all written in structural VHDL and
-synthesized for a Cyclone V FPGA. No soft-core IP, no inferred processor blocks — every register,
+synthesized for a Cyclone V FPGA. No soft-core IP, no inferred processor blocks: every register,
 mux, and decoder is an entity in [`rtl/`](rtl).
 
 **[Try it in the browser →](https://spookyjumpybeans.github.io/toy-cpu/)** Step through this CPU
@@ -17,16 +17,16 @@ executes, and a taken branch loads the loop address back into the PC](docs/visua
 
 ![Toy CPU datapath and controller](docs/datapath.png)
 
-*The datapath and hardwired controller. Every block here is an entity in [`rtl/`](rtl) —
+*The datapath and hardwired controller. Every block here is an entity in [`rtl/`](rtl).
 `oldPC` is `register_n` instance `b2v_PCold`, `MemAddr` is `b2v_MA`, and `S1`–`S4` are the mux
 selects driven by [`control_signals_logic.vhd`](rtl/control_signals_logic.vhd).*
 
 ## Visualizer
 
-[`web/`](web) — [live here](https://spookyjumpybeans.github.io/toy-cpu/) — runs a cycle-accurate
+[`web/`](web) ([live here](https://spookyjumpybeans.github.io/toy-cpu/)) runs a cycle-accurate
 model of this CPU in the browser and animates it one clock cycle at a time. The datapath above lights up the buses carrying a value on each cycle, the
 controller shows the time state and every control signal, and each step is narrated in plain
-English — "S2 puts MA = 0x67 on the address bus; memory returns 0x48 and S3 steers it into the
+English: "S2 puts MA = 0x67 on the address bus; memory returns 0x48 and S3 steers it into the
 register file."
 
 The model is a port, not an approximation. Control signals come equation-for-equation from
@@ -46,7 +46,7 @@ Every push to `main` that touches `web/` reruns those tests in CI and redeploys 
 they pass.
 
 The page includes a two-pass assembler, so you can write and step through your own programs.
-Branches jump to an address held in a register, so a loop loads its own address first —
+Branches jump to an address held in a register, so a loop loads its own address first:
 `ldi r2, loop`, then `ble r1, r2`.
 
 ---
@@ -58,7 +58,7 @@ Branches jump to an address held in a register, so a loop loads its own address 
 | Data width | 8 bits |
 | Address width | 8 bits → 256-byte address space |
 | Registers | 4 general-purpose (R0–R3), 8 bits each |
-| Control | Hardwired — no microcode |
+| Control | Hardwired, no microcode |
 | Cycles per instruction | 3, except indirect load (4) |
 | Memory interface | Single shared bus, `memoe` / `memwe` strobes |
 
@@ -71,7 +71,7 @@ Branches jump to an address held in a register, so a loop loads its own address 
 +---+ +----------+ +-----+ +-----+
 ```
 
-`a` selects the destination register, which is also the first ALU operand — so the machine is
+`a` selects the destination register, which is also the first ALU operand, so the machine is
 two-address (`R[a] ← R[a] op R[b]`) rather than three-address. `b` doubles as the second
 register select and as a sub-opcode for the unary and immediate groups, which is how eight
 opcodes cover fourteen operations. In the RTL the `b` field is carried on the signal named
@@ -81,7 +81,7 @@ opcodes cover fourteen operations. In the RTL the `b` field is carried on the si
 
 ![Toy instruction set](docs/instruction-set.png)
 
-The same table, in text — every row verified against [`rtl/alu.vhd`](rtl/alu.vhd) and
+The same table, in text, with every row verified against [`rtl/alu.vhd`](rtl/alu.vhd) and
 [`rtl/control_signals_logic.vhd`](rtl/control_signals_logic.vhd):
 
 | icode | b | Operation | RTL |
@@ -104,7 +104,7 @@ The same table, in text — every row verified against [`rtl/alu.vhd`](rtl/alu.v
 ## How the control unit works
 
 The sequencer is a 2-bit counter decoded into four one-hot time states, T0–T3. Control signals
-are pure sum-of-products over (time state × decoded opcode) — for example:
+are pure sum-of-products over (time state × decoded opcode). For example:
 
 ```vhdl
 memoe <= t0 OR (i3 AND t2) OR (i6 AND t2 AND (b0 OR b1 OR b2 OR b3)) OR (i6 AND b3 AND t3);
@@ -118,7 +118,7 @@ clr <= t2 AND NOT(icode = "110" AND b_fld = "11");
 ```
 
 That one term is the whole variable-length-instruction mechanism. Getting it right was the part
-of the design that took the most iteration — an unconditional clear at T2 silently truncates the
+of the design that took the most iteration: an unconditional clear at T2 silently truncates the
 indirect load, and the failure shows up as a register holding an address instead of the value at
 that address.
 
@@ -134,11 +134,11 @@ Four programs run against a behavioral RAM model ([`tb/ram.vhd`](tb/ram.vhd)) th
 | Program | Exercises |
 |---|---|
 | [`ProgramData0`](programs/ProgramData0.txt) | Immediate load, minimal smoke test |
-| [`ProgramData1`](programs/ProgramData1.txt) | Register-register AND — `0x55 AND 0xFF` |
+| [`ProgramData1`](programs/ProgramData1.txt) | Register-register AND: `0x55 AND 0xFF` |
 | [`ProgramData2`](programs/ProgramData2.txt) | Store to a register-held address |
-| [`ProgramData3`](programs/ProgramData3.txt) | Indirect load — the 4-cycle path |
+| [`ProgramData3`](programs/ProgramData3.txt) | Indirect load, the 4-cycle path |
 
-Run one from the `sim/` directory — the scripts use relative paths, so the working directory
+Run one from the `sim/` directory. The scripts use relative paths, so the working directory
 matters:
 
 ```bash
@@ -154,14 +154,14 @@ memory array on the wave view.
 
 ## Synthesis results
 
-Quartus Prime 20.1.1, Cyclone V `5CGXFC7C7F23C8` — full reports in [`reports/`](reports):
+Quartus Prime 20.1.1, Cyclone V `5CGXFC7C7F23C8`, with full reports in [`reports/`](reports):
 
 | Metric | Value |
 |---|---|
 | Logic utilization | 73 ALMs of 56,480 (< 1%) |
 | Registers | 66 (PC, PC_prev, IR, MA, 4×8 register file, 2-bit counter) |
 | Pins | 28 of 268 |
-| Block memory / DSP / PLL | none — pure logic and flip-flops |
+| Block memory / DSP / PLL | none: pure logic and flip-flops |
 
 **On timing:** the project has no `.sdc`, so Quartus fell back to its default 1 ns period and
 reports a −6.18 ns setup slack against an implied 1 GHz clock. That number is an artifact of the
@@ -173,12 +173,12 @@ needs.
 
 - **No timing constraints.** See above.
 - **`register_file.vhd` exposes `q0_out`–`q3_out`** for waveform debugging that the component
-  declaration in `datapath.vhd` does not bind. Legal VHDL — unassociated outputs are left open —
+  declaration in `datapath.vhd` does not bind. Legal VHDL (unassociated outputs are left open),
   but it is debug scaffolding that should come out.
 - **No assertion-based self-checking.** The testbenches are inspected visually in the wave view;
   they do not pass or fail on their own. Self-checking benches with expected-value assertions
   would make regressions visible without a human reading waveforms.
-- **`r` (bit 7) is decoded but barely used** — it suppresses the PC increment and the branch.
+- **`r` (bit 7) is decoded but barely used**: it suppresses the PC increment and the branch.
   It is effectively dead in all four test programs.
 
 ## Repository layout
@@ -196,4 +196,4 @@ web/         browser visualizer: cycle-accurate model, assembler, tests
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
